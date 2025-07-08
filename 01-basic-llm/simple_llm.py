@@ -105,10 +105,10 @@ def main():
   
   # Paragraph about Patanjali meditation
   patanjali_text = """
-  Patanjali's Yoga Sutras describe meditation as a systematic practice of mental discipline and spiritual development. 
-  The eight-limbed path of yoga, known as Ashtanga, includes meditation as its culminating practice. 
-  Dharana is the sixth limb, representing concentration and focused attention on a single object or concept. 
-  Dhyana, the seventh limb, is the sustained flow of concentration that leads to meditation proper.
+  Vipassana, meaning "insight" or "clear seeing," is one of the oldest forms of meditation, said to have been taught by the Buddha himself over 2,500 years ago. It is a practice of self-observation and awareness, designed to purify the mind by understanding the true nature of reality. Unlike concentration-based techniques that focus on a single object, Vipassana involves observing bodily sensations, thoughts, and emotions as they arise, without attachment or aversion.
+  The technique begins with Anapana, or observation of the natural breath, which helps calm and sharpen the mind. Once the mind is sufficiently focused, practitioners begin scanning their body in a systematic way to observe physical sensations. These sensations — whether pleasant, unpleasant, or neutral — are not reacted to. Instead, one simply notes them and maintains equanimity. Over time, this practice reveals the impermanence (anicca) of all things, leading to deep insight into the nature of suffering (dukkha) and the illusion of a fixed self (anatta).
+  Vipassana is typically taught in silent 10-day retreats, where participants follow a strict code of discipline, including noble silence, abstention from distractions, and several hours of meditation daily. The goal is not relaxation but transformation — to uproot deep-seated mental conditioning and reactiveness.
+  The benefits of Vipassana, reported by many practitioners, include greater emotional resilience, clarity of thought, reduced anxiety, and a more compassionate outlook on life. However, it is a demanding path, requiring patience, commitment, and the willingness to face one’s inner turmoil.
   """
   
   print("=== Simple LLM Demo ===")
@@ -119,12 +119,12 @@ def main():
   
   # Ask various queries
   queries = [
-    "What is dharana?",
-    "How many limbs are in Ashtanga yoga?",
-    "What is chitta vritti nirodha?",
-    "What is the goal of meditation according to Patanjali?",
-    "What is samadhi?",
-    "How does meditation transform a person?"
+    "What does the word Vipassana mean?",
+    "How does Vipassana differ from concentration-based meditation?",
+    "What is the role of Anapana in Vipassana?",
+    "What are the three characteristics of existence that Vipassana reveals?",
+    "Why are Vipassana retreats conducted in silence?",
+    "What are some benefits reported by those who practice Vipassana?"
   ]
   
   print("\n=== Queries and Answers ===")
