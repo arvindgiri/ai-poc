@@ -1,34 +1,90 @@
-🟢 1. Chat with Your PDF / TXT / CSV
-Complexity: 🟢 Beginner
-Description: Upload a document, ask questions about it. Uses simple FAISS + LangChain RetrievalQA.
-Add-ons: Support for multiple formats (PDF, TXT, CSV), chunking & embedding.
+# AI POCs (From Beginner to Intermediate)
 
-🟡 2. Multi-File Document Q&A
-Complexity: 🟡 Intermediate
-Description: Ingest multiple documents, store embeddings in a persistent DB (e.g., Chroma or Pinecone). Ask questions across all files.
-Add-ons: Metadata filtering (e.g., file name, date), multi-document context.
+Explore a progression of Retrieval-Augmented Generation (RAG) based project ideas using LangChain, FAISS, Chroma, and more — from simple chatbots to intermediate-level knowledge assistants.
 
-🟠 3. Chat with GitHub Repo
-Complexity: 🟠 Intermediate+
-Description: Clone a GitHub repo, extract code + README + docstrings, build vector index, and ask questions like "What does this repo do?" or "How is authentication handled?"
-Add-ons: Parsing code files using langchain.document_loaders.GitLoader or TextLoader + RegexSplitter.
+---
 
-🔵 4. Personal Knowledge Base Assistant
-Complexity: 🔵 Advanced
-Description: Load personal notes (Notion exports, emails, Google Docs, etc.), embed, store in a vector DB. Use LangChain to build an assistant that can reason over your knowledge.
-Add-ons: Scheduled re-indexing, metadata-based filtering, authentication.
+## 1. POC - Building a very basic LM  
+**Complexity**: Beginner  
 
-🔴 5. Multi-Tool Agent with RAG
-Complexity: 🔴 Pro-level
-Description: Use RAG to retrieve docs, but also allow the LLM to use tools (like calculator, web search, database query) via LangChain agents.
-Use case: "Summarize the document, get live stock price, and compare them."
+**Description**:  
+Create a basic example LM which can answer questions from a paragraph
 
-🟣 6. Hybrid RAG with Structured + Unstructured Data
-Complexity: 🟣 Expert
-Description: Combine structured data (SQL / APIs) and unstructured data (docs). E.g., "Give me all customers from the CRM who mentioned 'refund' in support tickets."
-Add-ons: Custom retriever for SQL, hybrid query engine.
+**Tools/Add-ons**:  
+- Python
+- 
 
-⚫ 7. Domain-Specific RAG Bot with Feedback Loop
-Complexity: ⚫ Guru mode
-Description: Enterprise bot that answers domain-specific queries (e.g., legal, healthcare). Collects user feedback, ranks answers, and re-trains or fine-tunes embeddings/models.
-Add-ons: Feedback loop, human-in-the-loop review, dashboards, logging.
+---
+
+## 2. Chat with Your PDF / TXT / CSV  
+**Complexity**: Beginner  
+
+**Description**:  
+Upload a document and ask questions about it. Uses simple FAISS + LangChain RetrievalQA.
+
+**Add-ons**:  
+- Support for multiple formats (PDF, TXT, CSV)  
+- Chunking and embedding
+
+---
+
+## 3. Multi-File Document Q&A  
+**Complexity**: Intermediate  
+
+**Description**:  
+Ingest multiple documents and store embeddings in a persistent DB like Chroma or Pinecone. Enables querying across all files.
+
+**Add-ons**:  
+- Metadata filtering (e.g., file name, date)  
+- Multi-document context
+
+---
+
+## 4. Chat with GitHub Repo  
+**Complexity**: Intermediate  
+
+**Description**:  
+Clone a GitHub repo, extract code, README, and docstrings, then build a vector index for Q&A like:  
+_“What does this repo do?”_ or _“How is authentication handled?”_
+
+**Add-ons**:  
+- Parsing code using `GitLoader` or `TextLoader` + `RegexSplitter`
+
+---
+
+## 5. Multi-Tool Agent with RAG  
+**Complexity**: Intermediate+  
+
+**Description**:  
+RAG-powered assistant that also uses LangChain agents for tools (e.g., calculator, web search, DB query).  
+Use case: _“Summarize the document, get live stock price, and compare them.”_
+
+**Add-ons**:  
+- Tool integration  
+- Dynamic agent workflows
+
+---
+
+## 6. Hybrid RAG: Structured + Unstructured Data  
+**Complexity**: Intermediate+  
+
+**Description**:  
+Combine SQL/API structured data with unstructured documents.  
+Example: _“List customers from CRM who mentioned ‘refund’ in support tickets.”_
+
+**Add-ons**:  
+- Custom retriever for SQL  
+- Hybrid query engine
+
+---
+
+## 7. Domain-Specific RAG Bot with Feedback Loop  
+**Complexity**: Intermediate+  
+
+**Description**:  
+Enterprise bot for domain-specific Q&A (e.g., legal, healthcare). Incorporates feedback to fine-tune models or embeddings.
+
+**Add-ons**:  
+- Feedback collection and ranking  
+- Human-in-the-loop review  
+- Dashboards and logging
