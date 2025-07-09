@@ -1,28 +1,32 @@
 #!/usr/bin/env python3
 """
 Simple LLM implementation for processing text and answering queries.
-Uses basic keyword matching and text similarity for responses.
+Uses TF-IDF (Term Frequency-Inverse Document Frequency) for better text ranking.
 """
 
 import re
+import math
 from collections import Counter
 from typing import List, Dict, Tuple
 
 
 class SimpleLLM:
-  """A basic LLM implementation using keyword matching and text analysis."""
+  """A basic LLM implementation using TF-IDF scoring for text analysis."""
   
   def __init__(self):
-    print ("LLM init called")
+    print("LLM init called")
     """Initialize the SimpleLLM."""
     self.knowledge_base = ""  # Store the preprocessed text
     self.sentences = []  # List of individual sentences
     self.keywords = {}  # Dictionary of keywords with frequencies
+    self.vocabulary = set()  # All unique terms across all sentences
+    self.tf_idf_matrix = []  # TF-IDF vectors for each sentence
+    self.idf_scores = {}  # Pre-computed IDF scores for all terms
   
   def preprocess_text(self, text: str) -> str:
     """Clean and preprocess text."""
+    print("LLM preprocess_text called")
     # Remove extra whitespace and normalize
-    print ("LLM preprocess_text called")
     outtext = re.sub(r'\s+', ' ', text.strip())  # Replace multiple spaces with single space
     return outtext
   
@@ -32,9 +36,9 @@ class SimpleLLM:
     sentences = re.split(r'[.!?]+', text)
     return [s.strip() for s in sentences if s.strip()]  # Remove empty sentences
   
-  def extract_keywords(self, text: str) -> Dict[str, int]:
-    """Extract keywords from text with frequency."""
-    # Convert to lowercase and remove punctuation
+  def tokenize(self, text: str) -> List[str]:
+    """Tokenize text into words, removing stop words."""
+    # Convert to lowercase and extract words
     words = re.findall(r'\b[a-zA-Z]+\b', text.lower())
     
     # Filter out common stop words
@@ -47,68 +51,160 @@ class SimpleLLM:
     
     # Keep only meaningful words (not stop words and length > 2)
     filtered_words = [word for word in words if word not in stop_words and len(word) > 2]
-    return dict(Counter(filtered_words))  # Return word frequency dictionary
+    return filtered_words
+  
+  def extract_keywords(self, text: str) -> Dict[str, int]:
+    """Extract keywords from text with frequency."""
+    words = self.tokenize(text)
+    return dict(Counter(words))  # Return word frequency dictionary
+  
+  def calculate_tf(self, term: str, document: List[str]) -> float:
+    """Calculate Term Frequency (TF) for a term in a document."""
+    if not document:  # Handle empty document
+      return 0.0
+    term_count = document.count(term)
+    return term_count / len(document)
+  
+  def calculate_idf(self, term: str, corpus: List[List[str]]) -> float:
+    """Calculate Inverse Document Frequency (IDF) for a term across corpus."""
+    if not corpus:  # Handle empty corpus
+      return 0.0
+    
+    # Count documents containing the term
+    docs_containing_term = sum(1 for doc in corpus if term in doc)
+    
+    if docs_containing_term == 0:  # Term not found in any document
+      return 0.0
+    
+    # Calculate IDF using log formula
+    return math.log(len(corpus) / docs_containing_term)
+  
+  def build_tf_idf_matrix(self, tokenized_sentences: List[List[str]]):
+    """Build TF-IDF matrix for all sentences."""
+    print("Building TF-IDF matrix...")
+    
+    # Build vocabulary from all sentences
+    self.vocabulary = set()
+    for sentence_tokens in tokenized_sentences:
+      self.vocabulary.update(sentence_tokens)
+    
+    # Pre-compute IDF scores for all terms
+    self.idf_scores = {}
+    for term in self.vocabulary:
+      self.idf_scores[term] = self.calculate_idf(term, tokenized_sentences)
+    
+    # Build TF-IDF vectors for each sentence
+    self.tf_idf_matrix = []
+    for sentence_tokens in tokenized_sentences:
+      tf_idf_vector = {}
+      for term in self.vocabulary:
+        tf = self.calculate_tf(term, sentence_tokens)
+        idf = self.idf_scores[term]
+        tf_idf_vector[term] = tf * idf
+      self.tf_idf_matrix.append(tf_idf_vector)
+    
+    print(f"Built TF-IDF matrix with {len(self.vocabulary)} unique terms.")
+  
+  def calculate_cosine_similarity(self, query_vector: Dict[str, float], 
+                                 sentence_vector: Dict[str, float]) -> float:
+    """Calculate cosine similarity between query and sentence vectors."""
+    # Calculate dot product
+    dot_product = 0.0
+    for term in query_vector:
+      if term in sentence_vector:
+        dot_product += query_vector[term] * sentence_vector[term]
+    
+    # Calculate magnitudes
+    query_magnitude = math.sqrt(sum(score ** 2 for score in query_vector.values()))
+    sentence_magnitude = math.sqrt(sum(score ** 2 for score in sentence_vector.values()))
+    
+    # Avoid division by zero
+    if query_magnitude == 0 or sentence_magnitude == 0:
+      return 0.0
+    
+    return dot_product / (query_magnitude * sentence_magnitude)
   
   def learn(self, text: str):
     """Process and learn from input text."""
-    print ("LLM learn called")
-    print (f"Preprocessing text and creating knowledge base")
+    print("LLM learn called")
+    print("Preprocessing text and creating knowledge base")
+    
     # Preprocess the input text
     self.knowledge_base = self.preprocess_text(text)
+    
     # Extract individual sentences
     self.sentences = self.extract_sentences(self.knowledge_base)
-    # Extract keywords with frequencies
+    
+    # Tokenize all sentences
+    tokenized_sentences = [self.tokenize(sentence) for sentence in self.sentences]
+    
+    # Build TF-IDF matrix
+    self.build_tf_idf_matrix(tokenized_sentences)
+    
+    # Extract keywords with frequencies (for backward compatibility)
     self.keywords = self.extract_keywords(self.knowledge_base)
+    
     print(f"Learned from text with {len(self.sentences)} sentences and {len(self.keywords)} unique keywords.")
   
-  def calculate_relevance(self, query: str, sentence: str) -> float:
-    """Calculate relevance score between query and sentence."""
-    # Extract words from query and convert to lowercase
-    query_words = set(re.findall(r'\b[a-zA-Z]+\b', query.lower()))
-    # Extract words from sentence and convert to lowercase
-    sentence_words = set(re.findall(r'\b[a-zA-Z]+\b', sentence.lower()))
-    
-    if not query_words or not sentence_words:  # Handle empty word sets
+  def calculate_relevance(self, query: str, sentence_idx: int) -> float:
+    """Calculate TF-IDF-based relevance score between query and sentence."""
+    if sentence_idx >= len(self.tf_idf_matrix):
       return 0.0
     
-    # Calculate Jaccard similarity
-    intersection = len(query_words.intersection(sentence_words))  # Common words
-    union = len(query_words.union(sentence_words))  # All unique words
+    # Tokenize query
+    query_tokens = self.tokenize(query)
+    if not query_tokens:
+      return 0.0
     
-    return intersection / union if union > 0 else 0.0  # Avoid division by zero
+    # Build TF-IDF vector for query
+    query_vector = {}
+    query_term_counts = Counter(query_tokens)
+    
+    for term in query_term_counts:
+      if term in self.vocabulary:
+        # Calculate TF for query term
+        tf = query_term_counts[term] / len(query_tokens)
+        # Use pre-computed IDF
+        idf = self.idf_scores.get(term, 0.0)
+        query_vector[term] = tf * idf
+    
+    # Get sentence TF-IDF vector
+    sentence_vector = self.tf_idf_matrix[sentence_idx]
+    
+    # Calculate cosine similarity
+    return self.calculate_cosine_similarity(query_vector, sentence_vector)
   
   def find_best_answer(self, query: str) -> str:
-    """Find the best answer for a given query."""
+    """Find the best answer for a given query using TF-IDF scoring."""
     if not self.sentences:  # Check if we have any knowledge
       return "I don't have any knowledge to answer your question."
     
-    # Calculate relevance scores for all sentences
+    # Calculate TF-IDF relevance scores for all sentences
     scored_sentences = []
-    for sentence in self.sentences:
-      score = self.calculate_relevance(query, sentence)  # Get relevance score
+    for i, sentence in enumerate(self.sentences):
+      score = self.calculate_relevance(query, i)  # Get TF-IDF relevance score
       scored_sentences.append((sentence, score))  # Store sentence with score
     
     # Sort sentences by relevance score (highest first)
     scored_sentences.sort(key=lambda x: x[1], reverse=True)
     
     # Return the most relevant sentence if score is above threshold
-    if scored_sentences[0][1] > 0.1:  # Confidence threshold
+    if scored_sentences[0][1] > 0.05:  # Lower threshold for TF-IDF scores
       return scored_sentences[0][0]  # Return best sentence
     else:
       # Return best guess with low confidence warning
       return "I am not confident but here is my guess: " + scored_sentences[0][0]
   
   def query(self, question: str) -> str:
-    """Answer a query based on learned knowledge."""
+    """Answer a query based on learned knowledge using TF-IDF."""
     print(f"\nQuery: {question}")
     answer = self.find_best_answer(question)  # Find best matching sentence
     print(f"Answer: {answer}")
-
     return answer
 
 
 def main():
-  """Main function demonstrating the SimpleLLM."""
+  """Main function demonstrating the TF-IDF enhanced SimpleLLM."""
   # Create LLM instance
   llm = SimpleLLM()
   
@@ -121,8 +217,8 @@ def main():
   """
   
   print("=== Simple LLM Demo ===")
-
   print("=== LLM is learning from the text ===")
+  
   # Learn from the text
   llm.learn(patanjali_text)
   
