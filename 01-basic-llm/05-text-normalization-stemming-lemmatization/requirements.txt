@@ -1,0 +1,8 @@
+# Simple LLM Requirements
+# This project uses only Python standard library modules
+# No additional packages required
+
+# For future enhancements, you might want to add:
+# nltk>=3.8
+# scikit-learn>=1.3.0
+# numpy>=1.24.0 
