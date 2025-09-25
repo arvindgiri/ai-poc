@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <!-- Console appender for local environment -->
+  <appender name="STDOUT_DEV_LOCAL" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %replace(%replace(%replace(%replace(%replace(%level){"DEBUG","D"}){"INFO","I"}){"WARN","W"}){"ERROR","E"}){"TRACE","T"} %logger{0} - %msg%replace(%replace( [thread: %thread]){"\[thread: main\]",""}){"^ $",""} %ex%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Set root logger level and appender -->
+  <root level="INFO">
+    <appender-ref ref="STDOUT_DEV_LOCAL" />
+  </root>
+
+  <!-- Set specific logger levels -->
+  <!-- All loggers will use the root level (INFO) -->
+
+</configuration>
